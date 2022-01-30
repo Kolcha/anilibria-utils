@@ -1,3 +1,4 @@
+import cgi
 import lxml.html
 import re
 import requests
@@ -38,13 +39,14 @@ def _get_torrent_links(content, prefer_hevc=False):
     return ['https://www.anilibria.tv' + n.get('href') for n in nodes]
 
 
-def _get_torrent_file_name(link):
-    return link[link.rfind('/')+1:]
+def _get_torrent_file_name(headers):
+    _, params = cgi.parse_header(headers['Content-Disposition'])
+    return params['filename'].encode('latin1').decode('utf-8')
 
 
 def _download_torrent_file(link, session):
     r = session.get(link)
-    filename = _get_torrent_file_name(link)
+    filename = _get_torrent_file_name(r.headers)
     return (filename, r.content)
 
 
