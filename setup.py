@@ -19,5 +19,5 @@ setuptools.setup(
     keywords='anime, torrent-downloader',
     packages=setuptools.find_packages(),
     install_requires=['lxml', 'requests'],
-    python_requires='>=3.6',
+    python_requires='>=3.9',
 )

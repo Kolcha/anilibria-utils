@@ -6,11 +6,11 @@ import requests
 _link_re = re.compile(r"^https?:\/\/www\.anilibria\.tv\/release\/[\w-]+\.html?$")
 
 
-def match_link(link):
+def match_link(link: str) -> bool:
     return _link_re.match(link) is not None
 
 
-def _get_hevc_torrents(content):
+def _get_hevc_torrents(content: bytes) -> list[str]:
     tree = lxml.html.fromstring(content)
     nodes = tree.xpath('//div[@class="download-torrent"]/table/tr')
     links = []
@@ -28,7 +28,7 @@ def _get_hevc_torrents(content):
     return links
 
 
-def _get_torrent_links(content, prefer_hevc=False):
+def _get_torrent_links(content: bytes, prefer_hevc: bool = False) -> list[str]:
     if prefer_hevc:
         links = _get_hevc_torrents(content)
         if links:
@@ -39,18 +39,18 @@ def _get_torrent_links(content, prefer_hevc=False):
     return ['https://www.anilibria.tv' + n.get('href') for n in nodes]
 
 
-def _get_torrent_file_name(headers):
+def _get_torrent_file_name(headers: dict[str, str]) -> str:
     _, params = cgi.parse_header(headers['Content-Disposition'])
     return params['filename'].encode('latin1').decode('utf-8')
 
 
-def _download_torrent_file(link, session):
+def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, bytes]:
     r = session.get(link)
     filename = _get_torrent_file_name(r.headers)
     return (filename, r.content)
 
 
-def download_torrents(link, session=None, prefer_hevc=False):
+def download_torrents(link: str, session: requests.Session = None, prefer_hevc: bool = False) -> list[tuple[str, bytes]]:
     if not session:
         session = requests.Session()
     r = session.get(link)
