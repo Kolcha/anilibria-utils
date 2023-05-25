@@ -1,4 +1,3 @@
-import cgi
 import re
 import lxml.html
 import requests
@@ -40,8 +39,7 @@ def _get_torrent_links(content: bytes, prefer_hevc: bool = False) -> list[str]:
 
 
 def _get_torrent_file_name(headers: dict[str, str]) -> str:
-    _, params = cgi.parse_header(headers['Content-Disposition'])
-    return params['filename'].encode('latin1').decode('utf-8')
+    return headers['Content-Disposition'].split('filename=')[1].strip('"')
 
 
 def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, bytes]:
