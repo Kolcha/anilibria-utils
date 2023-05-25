@@ -38,13 +38,9 @@ def _get_torrent_links(content: bytes, prefer_hevc: bool = False) -> list[str]:
     return ['https://www.anilibria.tv' + n.get('href') for n in nodes]
 
 
-def _get_torrent_file_name(headers: dict[str, str]) -> str:
-    return headers['Content-Disposition'].split('filename=')[1].strip('"')
-
-
 def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, bytes]:
     resp = session.get(link)
-    filename = _get_torrent_file_name(resp.headers)
+    filename = resp.headers['Content-Disposition'].split('filename=')[1].strip('"')
     return filename, resp.content
 
 
