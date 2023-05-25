@@ -13,15 +13,15 @@ def _get_hevc_torrents(content: bytes) -> list[str]:
     tree = lxml.html.fromstring(content)
     nodes = tree.xpath('//div[@class="download-torrent"]/table/tr')
     links = []
-    for n in nodes:
+    for node in nodes:
         is_hevc = False
         tpath = ""
-        for ch in n:
-            cl = ch.get('class')
-            if cl == 'torrentcol1' and 'HEVC' in ch.text:
+        for child in node:
+            class_name = child.get('class')
+            if class_name == 'torrentcol1' and 'HEVC' in child.text:
                 is_hevc = True
-            if cl == 'torrentcol4':
-                tpath = ch.xpath('a')[0].get('href')
+            if class_name == 'torrentcol4':
+                tpath = child.xpath('a')[0].get('href')
         if is_hevc:
             links.append(f'https://www.anilibria.tv{tpath}')
     return links
@@ -43,16 +43,16 @@ def _get_torrent_file_name(headers: dict[str, str]) -> str:
 
 
 def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, bytes]:
-    r = session.get(link)
-    filename = _get_torrent_file_name(r.headers)
-    return (filename, r.content)
+    resp = session.get(link)
+    filename = _get_torrent_file_name(resp.headers)
+    return filename, resp.content
 
 
 def download_torrents(link: str, session: requests.Session = None, prefer_hevc: bool = False) -> list[tuple[str, bytes]]:
     if not session:
         session = requests.Session()
-    r = session.get(link)
-    if r.status_code != 200:
+    resp = session.get(link)
+    if resp.status_code != 200:
         return []
-    torrent_links = _get_torrent_links(r.content, prefer_hevc)
+    torrent_links = _get_torrent_links(resp.content, prefer_hevc)
     return [_download_torrent_file(t, session) for t in torrent_links]
