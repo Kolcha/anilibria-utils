@@ -1,6 +1,6 @@
 import cgi
-import lxml.html
 import re
+import lxml.html
 import requests
 
 _link_re = re.compile(r"^https?:\/\/www\.anilibria\.tv\/release\/[\w-]+\.html?$")
