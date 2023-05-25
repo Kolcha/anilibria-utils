@@ -2,7 +2,7 @@ import re
 import lxml.html
 import requests
 
-_link_re = re.compile(r"^https?:\/\/www\.anilibria\.tv\/release\/[\w-]+\.html?$")
+_link_re = re.compile(r"^https://www\.anilibria\.tv/release/[\w-]+\.html$")
 
 
 def match_link(link: str) -> bool:
