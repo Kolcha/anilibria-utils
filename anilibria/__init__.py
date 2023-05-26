@@ -1,3 +1,10 @@
+"""
+Simple Python module to download torrents from www.anilibria.tv
+
+This module is not a some API client, this is just a web page parser.
+So, it can stop working on any website UI change or may be unreliable.
+"""
+
 import re
 import lxml.html
 import requests
@@ -6,6 +13,11 @@ _link_re = re.compile(r"^https://www\.anilibria\.tv/release/[\w-]+\.html$")
 
 
 def match_link(link: str) -> bool:
+    """Checks if given link can be handled or not.
+
+    It does only text-based matching, no network calls are made.
+    So, any link following the pattern will be considered as supported.
+    """
     return _link_re.match(link) is not None
 
 
@@ -45,6 +57,27 @@ def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, b
 
 
 def download_torrents(link: str, session: requests.Session = None, prefer_hevc: bool = False) -> list[tuple[str, bytes]]:
+    """Downloads all .torrent files from the given page.
+
+    This function doesn't write any files, it returns file data instead.
+
+    Basic usage::
+
+        >>> import anilibria
+        >>> page_url = 'https://www.anilibria.tv/release/dr-stone.html'
+        >>> torrents = anilibria.download_torrents(page_url)
+        >>> for filename, data in torrents:
+        ...     with open(filename, "wb") as f:
+        ...         f.write(data)
+
+    :param link: supported page URL. No validation is made,
+        in case of unsupported URL behavior is undefined.
+    :param session: (optional) :class:`requests.Session` object to use.
+        Useful in case of multiple subsequent calls.
+    :param prefer_hevc: (optional) download only HEVC-encoded torrents if any,
+        everything otherwise. Set to False by default.
+    :returns: list of ``('filename', 'file data')`` pairs
+    """
     if not session:
         session = requests.Session()
     resp = session.get(link)
