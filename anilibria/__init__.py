@@ -68,8 +68,7 @@ def download_torrents(link, prefer_hevc=False):
 
         >>> import anilibria
         >>> page_url = 'https://www.anilibria.tv/release/dr-stone.html'
-        >>> torrents = anilibria.download_torrents(page_url)
-        >>> for filename, data in torrents:
+        >>> for filename, data in anilibria.download_torrents(page_url):
         ...     with open(filename, "wb") as f:
         ...         f.write(data)
 
@@ -78,11 +77,9 @@ def download_torrents(link, prefer_hevc=False):
     :type link: str
     :param prefer_hevc: (optional) download only HEVC-encoded torrents if any,
         everything otherwise. Set to False by default.
-    :returns: list of ``('filename', 'file data')`` pairs
+    :returns: an iterator which yields ``('filename', 'file data')`` pairs
     """
     session = requests.Session()
     resp = session.get(link)
-    if resp.status_code != 200:
-        return []
-    torrent_links = _get_torrent_links(resp.content, prefer_hevc)
-    return [_download_torrent_file(t, session) for t in torrent_links]
+    for torrent_link in _get_torrent_links(resp.content, prefer_hevc):
+        yield _download_torrent_file(torrent_link, session)
