@@ -59,7 +59,7 @@ def _download_torrent_file(link, session):
     return filename, resp.content
 
 
-def download_torrents(link, session=None, prefer_hevc=False):
+def download_torrents(link, prefer_hevc=False):
     """Downloads all .torrent files from the given page.
 
     This function doesn't write any files, it returns file data instead.
@@ -76,15 +76,11 @@ def download_torrents(link, session=None, prefer_hevc=False):
     :param link: supported page URL. No validation is made,
         in case of unsupported URL behavior is undefined.
     :type link: str
-    :param session: (optional) :class:`requests.Session` object to use.
-        Useful in case of multiple subsequent calls.
-    :type session: requests.Session
     :param prefer_hevc: (optional) download only HEVC-encoded torrents if any,
         everything otherwise. Set to False by default.
     :returns: list of ``('filename', 'file data')`` pairs
     """
-    if not session:
-        session = requests.Session()
+    session = requests.Session()
     resp = session.get(link)
     if resp.status_code != 200:
         return []

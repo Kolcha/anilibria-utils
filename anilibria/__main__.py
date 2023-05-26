@@ -4,7 +4,6 @@ Simple tool to download torrents from www.anilibria.tv
 
 import argparse
 import pathlib
-import requests
 
 from . import match_link, download_torrents
 
@@ -18,7 +17,6 @@ parser.add_argument('--hevc', action='store_true',
 
 args = parser.parse_args()
 
-session = requests.Session()
 dst_dir = pathlib.Path(args.dst)
 dst_dir.mkdir(parents=True, exist_ok=True)
 
@@ -26,6 +24,6 @@ for url in args.urls:
     if not match_link(url):
         print(f'unsupported link, ignoring: {url}')
         continue
-    for filename, data in download_torrents(url, session, args.hevc):
+    for filename, data in download_torrents(url, prefer_hevc=args.hevc):
         print(f'downloaded torrent: {filename}')
         (dst_dir / filename).write_bytes(data)
