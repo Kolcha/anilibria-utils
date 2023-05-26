@@ -12,8 +12,11 @@ import requests
 _link_re = re.compile(r"^https://www\.anilibria\.tv/release/[\w-]+\.html$")
 
 
-def match_link(link: str) -> bool:
+def match_link(link):
     """Checks if given link can be handled or not.
+
+    :type link: str
+    :rtype: bool
 
     It does only text-based matching, no network calls are made.
     So, any link following the pattern will be considered as supported.
@@ -21,7 +24,7 @@ def match_link(link: str) -> bool:
     return _link_re.match(link) is not None
 
 
-def _get_hevc_torrents(content: bytes) -> list[str]:
+def _get_hevc_torrents(content):
     tree = lxml.html.fromstring(content)
     nodes = tree.xpath('//div[@class="download-torrent"]/table/tr')
     links = []
@@ -39,7 +42,7 @@ def _get_hevc_torrents(content: bytes) -> list[str]:
     return links
 
 
-def _get_torrent_links(content: bytes, prefer_hevc: bool = False) -> list[str]:
+def _get_torrent_links(content, prefer_hevc=False):
     if prefer_hevc:
         links = _get_hevc_torrents(content)
         if links:
@@ -50,13 +53,13 @@ def _get_torrent_links(content: bytes, prefer_hevc: bool = False) -> list[str]:
     return ['https://www.anilibria.tv' + n.get('href') for n in nodes]
 
 
-def _download_torrent_file(link: str, session: requests.Session) -> tuple[str, bytes]:
+def _download_torrent_file(link, session):
     resp = session.get(link)
     filename = resp.headers['Content-Disposition'].split('filename=')[1].strip('"')
     return filename, resp.content
 
 
-def download_torrents(link: str, session: requests.Session = None, prefer_hevc: bool = False) -> list[tuple[str, bytes]]:
+def download_torrents(link, session=None, prefer_hevc=False):
     """Downloads all .torrent files from the given page.
 
     This function doesn't write any files, it returns file data instead.
@@ -72,8 +75,10 @@ def download_torrents(link: str, session: requests.Session = None, prefer_hevc: 
 
     :param link: supported page URL. No validation is made,
         in case of unsupported URL behavior is undefined.
+    :type link: str
     :param session: (optional) :class:`requests.Session` object to use.
         Useful in case of multiple subsequent calls.
+    :type session: requests.Session
     :param prefer_hevc: (optional) download only HEVC-encoded torrents if any,
         everything otherwise. Set to False by default.
     :returns: list of ``('filename', 'file data')`` pairs
